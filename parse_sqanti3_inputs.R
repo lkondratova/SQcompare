@@ -1,6 +1,5 @@
 #!/usr/bin/env Rscript
 
-# Load libraries
 suppressPackageStartupMessages({
   library(optparse)
   library(digest)
