@@ -12,7 +12,8 @@ suppressPackageStartupMessages({
 option_list <- list(
   make_option(c("--collapse_ISM"), type = "logical", default = FALSE,
               help = "Collapse ISM isoforms into existant FSM (if available) [default: FALSE]"),
-  make_option(c("--input_files"), type = "character", help = "TSV file with paths to SQANTI3 outputs")
+  make_option(c("--input_files"), type = "character", help = "TSV file with paths to SQANTI3 outputs"),
+  make_option(c("--out"), type = "character", help = "Output folder")
 )
 
 opt_parser <- OptionParser(option_list = option_list)
