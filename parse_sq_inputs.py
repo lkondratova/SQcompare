@@ -1,93 +1,82 @@
 #!/usr/bin/env python3
 import argparse
 import pandas as pd
-import os
-import hashlib
 import pickle
 from pathlib import Path
 
-def get_sample_name(class_file):
-    """Extract sample name from classification file (strip extension and suffix)."""
-    base = Path(class_file).stem
-    if base.endswith("_classification"):
-        return base.replace("_classification", "")
-    return base
+def parse_sqanti3_inputs(tsv_file, collapse_ISM=False):
+    """
+    Parse a TSV with paths to SQANTI3 outputs.
+    
+    Parameters
+    ----------
+    tsv_file : str or Path
+        Path to TSV file with 2-3 columns:
+        1) classification.txt
+        2) junctions.txt
+        3) corrected.gtf
+        4) (optional) expression levels
+    collapse_ISM : bool
+        Whether to collapse ISM isoforms (not implemented here, just a flag).
+    
+    Returns
+    -------
+    dict
+        Dictionary keyed by sample name. Each value is another dict with:
+        - classification : DataFrame
+        - junctions : DataFrame
+        - expression : DataFrame or None
+    """
+    samples_info = {}
 
-def hash_files(*files):
-    """Generate MD5 hash from file paths (concatenated)."""
-    m = hashlib.md5()
-    for f in files:
-        if f is not None:
-            m.update(f.encode("utf-8"))
-    return m.hexdigest()
+    df_inputs = pd.read_csv(tsv_file, sep="\t", header=None)
+    n_samples = len(df_inputs)
 
-#############
+    for idx, row in df_inputs.iterrows():
+        class_path = Path(row[0])
+        sj_path = Path(row[1])
+        gtf_path = Path(row[2])
+        expr_path = Path(row[3]) if len(row) > 3 else None
+
+        # sample name extraction (strip _classification.txt)
+        sample_name = class_path.stem.replace("_classification", "")
+
+        samples_info[sample_name] = {
+            "classification": pd.read_csv(class_path, sep="\t"),
+            "junctions": pd.read_csv(sj_path, sep="\t"),
+            "gtf":pd.read_csv(gtf_path, sep="\t")
+            "expression": pd.read_csv(expr_path, sep="\t") if expr_path else None
+        }
+
+    return {
+        "n_samples": n_samples,
+        "samples": list(samples_info.keys()),
+        "data": samples_info
+    }
+
 def main():
-    parser = argparse.ArgumentParser(
-        description="Parse multiple SQANTI3 outputs from a TSV mapping file."
-    )
+    parser = argparse.ArgumentParser(description="Parse SQANTI3 outputs from TSV list")
+    parser.add_argument("--collapse_ISM", action="store_true",
+                        help="Collapse ISM isoforms (default: False)")
+    parser.add_argument("--input_files", required=True,
+                        help="TSV file with SQANTI3 output paths")
     parser.add_argument(
-        "--collapse_ISM", type=lambda x: str(x).lower() in ["true", "1", "yes"],
-        default=False, help="Collapse ISM isoforms into one category (default: False)"
-    )
-    parser.add_argument(
-        "--input_files", required=True,
-        help="TSV file with columns: classification.txt, junctions.txt, [expression.tsv]"
-    )
-    parser.add_argument(
-        "out", required=True
+        "--out", required=True,
         help="Path to the output folder"
     )
     args = parser.parse_args()
 
-    # Load mapping file
-    input_df = pd.read_csv(args.input_files, sep="\t", header=None, comment="#")
+    result = parse_sqanti3_inputs(args.input_files, args.collapse_ISM)
 
-    if input_df.shape[1] < 2:
-        raise ValueError("TSV must have at least 2 columns: classification.txt, junctions.txt")
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    input_df.columns = ["classification", "junctions"] + (
-        ["expression"] if input_df.shape[1] >= 3 else []
-    )
+    out_file = out_dir / "sqanti3_samples.pkl"
+    with open(out_file, "wb") as f:
+        pickle.dump(result, f)
 
-    samples_info = {}
-    for _, row in input_df.iterrows():
-        class_file = row["classification"]
-        junc_file = row["junctions"]
-        expr_file = row["expression"] if "expression" in row else None
-
-        # File existence check
-        if not os.path.exists(class_file):
-            raise FileNotFoundError(f"Classification file not found: {class_file}")
-        if not os.path.exists(junc_file):
-            raise FileNotFoundError(f"Junction file not found: {junc_file}")
-        if expr_file and not os.path.exists(expr_file):
-            raise FileNotFoundError(f"Expression file not found: {expr_file}")
-
-        # Extract sample name
-        sample_name = get_sample_name(class_file)
-
-        # Create hash
-        file_hash = hash_files(class_file, junc_file, expr_file)
-
-        # Store paths (lazy loading – don’t read files yet, unless needed)
-        samples_info[sample_name] = {
-            "hash": file_hash,
-            "classification_path": class_file,
-            "junctions_path": junc_file,
-            "expression_path": expr_file
-        }
-
-    # Summary
-    print(f"Loaded {len(samples_info)} samples")
-    print("Sample names:")
-    for name in samples_info.keys():
-        print(f" - {name}")
-    print(f"\n--collapse_ISM = {args.collapse_ISM}")
-
-    # Save intermediate object
-    with open("sqanti3_samples.pkl", "wb") as f:
-        pickle.dump(samples_info, f)
+    print(f"[INFO] Parsed {result['n_samples']} samples: {', '.join(result['samples'])}")
+    print(f"[INFO] Results saved in {out_file}")
 
 if __name__ == "__main__":
     main()
