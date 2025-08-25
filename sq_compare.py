@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+
+import os
+import argparse
+import subprocess
+import sys
+
+def run_script(script, args):
+    """Helper function to run a Python script via subprocess."""
+    cmd = [sys.executable, script] + args
+    print("Running:", " ".join(cmd))
+    result = subprocess.run(cmd, check=True)
+    return result
+
+def main():
+    parser = argparse.ArgumentParser(description="Run the isoform analysis pipeline without Nextflow.")
+    
+    parser.add_argument("--input_files", required=True,
+                        help="TSV file with paths to SQANTI3 outputs (classification, junctions, GTF, optional expression).")
+    parser.add_argument("--out", required=True,
+                        help="Output folder for results.")
+    parser.add_argument("--collapseISM", action="store_true",
+                        help="Whether to collapse ISM isoforms.")
+    
+    args = parser.parse_args()
+    
+    # Make output folders
+    os.makedirs(args.outdir, exist_ok=True)
+    
+    # Step 1: Parse inputs
+    parsed_dir = os.path.join(args.outdir, "parsed")
+    os.makedirs(parsed_dir, exist_ok=True)
+    run_script("parse_sq_inputs.py", ["--input_files", args.input_files, "--out", parsed_dir])
+    
+    # Step 2: Collapse ISM (optional)
+    if args.collapseISM:
+        collapsed_dir = os.path.join(args.outdir, "collapsed")
+        os.makedirs(collapsed_dir, exist_ok=True)
+        run_script("collapse_ism.py", ["--input_files", parsed_dir, "--out", collapsed_dir])
+        working_dir = collapsed_dir
+    else:
+        working_dir = parsed_dir
+    
+    # Step 3: Assign universal IDs
+    uid_dir = os.path.join(args.outdir, "universal")
+    os.makedirs(uid_dir, exist_ok=True)
+    run_script("universal_id.py", ["--input_files", working_dir, "--out", uid_dir])
+    
+    # Step 4: TMM normalization (optional)
+    if args.expression_provided:
+        norm_dir = os.path.join(args.outdir, "normalized")
+        os.makedirs(norm_dir, exist_ok=True)
+        run_script("tmm_norm.py", ["--input_files", uid_dir, "--out", norm_dir])
+        working_dir = norm_dir
+    else:
+        working_dir = uid_dir
+    
+    # Step 5: Create matrix and isoform info
+    gen_dir = os.path.join(args.outdir, "generalized")
+    os.makedirs(gen_dir, exist_ok=True)
+    run_script("generalize_isoforms.py", ["--input_files", working_dir, "--out", gen_dir])
+    
+    # Step 6: Generate plots and summary
+    plots_dir = os.path.join(args.outdir, "plots")
+    os.makedirs(plots_dir, exist_ok=True)
+    run_script("sq_compare_summary.py", ["--input_files", gen_dir, "--out", plots_dir])
+    
+    # Step 7: Export final report
+    export_dir = os.path.join(args.outdir, "final_report")
+    os.makedirs(export_dir, exist_ok=True)
+    run_script("export_script.py", ["--input", plots_dir, "--out", export_dir])
+    
+    print(f"Pipeline finished! Results are in: {args.outdir}")
+
+if __name__ == "__main__":
+    main()
+
+#python main.py --input_files inputs.tsv --out results --collapseISM
