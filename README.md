@@ -6,7 +6,7 @@ This repository contains a Python-based workflow to analyze and compare multiple
 
 ## Features
 
-- Parse SQANTI3 output files (classification, junctions, GTF, optional expression).
+- Parse SQANTI3 output files: classification, junctions, GTF, expression (optional).
 - Collapse ISM isoforms (optional).
 - Assign **universal isoform IDs** across samples based on junction chains.
 - Normalize expression values using TMM (edgeR-like) normalization if expression files are provided.
@@ -23,56 +23,61 @@ This repository contains a Python-based workflow to analyze and compare multiple
 
 ## Installation
 
-This pipeline is designed to run in a **Conda environment**. Use the provided `environment.yml`:
+This pipeline is designed to run in a **Conda environment**. Use the provided `sq_compare_environment.yml`:
 
 ```bash
-conda env create -f environment.yml
-conda activate isoform-tool
+conda env create -f sq_compare_environment.yml
+conda activate sq_compare
+```
 
 Nextflow to automate the pipeline
-nextflow run main.nf -profile standard
-Input Files
+`nextflow run main.nf -profile standard`
 
-SQANTI3 output files:
-Each sample should have at least:
+---
+## Input Files
 
-classification.txt
+SQcompare accepts a tab-separated input file (no header) with the following columns:
 
-junctions.txt
+1. Path to a SQANTI3 *classification.txt
 
-isoforms.gtf
+2. Path to a SQANTI3 *junctions.txt
 
-Optionally, an expression file (TPM or counts) can be provided.
+3. Path to *corrected.gtf
 
-Samples TSV: (optional)
-Can include metadata like sample names, days, or conditions.
+4. Optionally, an expression file (absolute values) can be provided, where the first column is an isoform name and the second column is an absolute expression value (no header).
 
-Pipeline Scripts
+An example bash script for generating an input file can be found in `helper_scripts/create_input_file.sh`
+
+---
+
+## Pipeline Scripts
+
+```
 Script	Purpose
-parse_sq_inputs.py	Parse SQANTI3 files and organize them into dataframes.
-collapse_ism.py	Collapse incomplete splice match isoforms if requested.
-universal_id.py	Assign universal isoform IDs across all samples based on junction chains.
-tmm_norm.py	Normalize expression values using TMM (edgeR-like normalization).
-generalize_isoforms.py	Create combined isoform matrices and information files for all samples.
-sq_compare_summary.py	Generate plots and tables summarizing isoform data.
-export_script.py	Export plots, tables, and summary statistics, optionally as a single PDF report.
-Workflow Overview (Nextflow)
+parse_sq_inputs.py:        Parse SQANTI3 files and organize them into dataframes.
+collapse_ism.py:           Collapse incomplete splice match isoforms if requested.
+universal_id.py:	         Assign universal isoform IDs across all samples based on junction chains.
+tmm_norm.py:               Normalize expression values using TMM (edgeR-like normalization).
+generalize_isoforms.py:	   Create combined isoform matrices and information files for all samples.
+sq_compare_summary.py:	   Generate plots and tables summarizing isoform data.
+export_script.py:	         Export plots, tables, and summary statistics, optionally as a single PDF report.
 
-Parse inputs: parse_sq_inputs.py
+```
+---
 
-Collapse ISM isoforms (optional): collapse_ism.py
+## Workflow Overview (Nextflow)
 
-Assign universal IDs: universal_id.py
+1. Parse inputs: parse_sq_inputs.py
+2. Collapse ISM isoforms (optional): collapse_ism.py
+3. Assign universal IDs: universal_id.py
+4. Normalize expression (optional): tmm_norm.py
+5. Generate matrices and combined isoform info: generalize_isoforms.py
+6. Create plots and summary tables: sq_compare_summary.py
+7. Export report: export_script.py
 
-Normalize expression (optional): tmm_norm.py
+---
 
-Generate matrices and combined isoform info: generalize_isoforms.py
-
-Create plots and summary tables: sq_compare_summary.py
-
-Export report: export_script.py
-
-Output
+## Output
 
 isoform_info.tsv: Summary of all isoforms with universal IDs, category, length, exons, etc.
 
@@ -86,27 +91,25 @@ summary_report.txt: Text summary of isoform statistics.
 
 full_report.pdf: Optional combined report with all plots, tables, and statistics.
 
-Configuration
+---
+
+## Configuration
 
 Nextflow config: nextflow.config
 
-Profiles for local, cluster, or docker execution.
+Profiles for local, cluster, or Docker execution.
 
-Uses the provided environment.yml for reproducibility.
+Uses the provided sq_compare_environment.yml for reproducibility.
 
-Pipeline parameters:
+## Pipeline parameters
 
---input: path to input SQANTI3 files
+--input: tab-separated file with paths to output SQANTI3 files
 
---samples: optional metadata file
+--collapseISM: True/False (default False)
 
---collapseISM: true/false
+--out: output directory
 
---expression: path to expression files (optional)
-
---outdir: output directory
-
-Dependencies
+## Dependencies
 
 Python ≥ 3.10
 
@@ -122,20 +125,10 @@ Nextflow (optional, for pipeline automation)
 
 Conda (recommended for reproducibility)
 
-Future Extensions
+## Future Extensions
 
 Differential isoform expression (DIE) or differential transcript usage (DTU) analysis.
 
 Functional impact analysis of isoform switching (protein domain changes, NMD predictions).
 
 Integration with external tools like IsoformSwitchAnalyzeR for deeper splicing analysis.
-
-License
-
-MIT License
-
-Contact
-
-For questions, please contact [Your Name] or open an issue on GitHub.
-
-
