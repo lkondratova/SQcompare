@@ -1,0 +1,21 @@
+name: sq_compare
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pandas
+  - numpy
+  - scipy
+  - matplotlib
+  - seaborn
+  - upsetplot
+  - reportlab
+# Create environment
+#conda env create -f sq_compare_environment.yml
+
+# Activate environment
+#conda activate sq_compare
+
+# Export updated environment after adding more dependencies
+#conda env export --no-builds > sq_compare_environment.yml
