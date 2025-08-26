@@ -4,7 +4,7 @@ import pandas as pd
 import pickle
 from pathlib import Path
 
-def parse_sqanti3_inputs(tsv_file, collapse_ISM=False):
+def parse_sqanti3_inputs(tsv_file):
     """
     Parse a TSV with paths to SQANTI3 outputs.
     
@@ -16,15 +16,13 @@ def parse_sqanti3_inputs(tsv_file, collapse_ISM=False):
         2) junctions.txt
         3) corrected.gtf
         4) (optional) expression levels
-    collapse_ISM : bool
-        Whether to collapse ISM isoforms (not implemented here, just a flag).
-    
     Returns
     -------
     dict
         Dictionary keyed by sample name. Each value is another dict with:
         - classification : DataFrame
         - junctions : DataFrame
+        - gtf : corrected.gtf
         - expression : DataFrame or None
     """
     samples_info = {}
@@ -44,7 +42,7 @@ def parse_sqanti3_inputs(tsv_file, collapse_ISM=False):
         samples_info[sample_name] = {
             "classification": pd.read_csv(class_path, sep="\t"),
             "junctions": pd.read_csv(sj_path, sep="\t"),
-            "gtf":pd.read_csv(gtf_path, sep="\t")
+            "gtf":pd.read_csv(gtf_path, sep="\t"),
             "expression": pd.read_csv(expr_path, sep="\t") if expr_path else None
         }
 
@@ -55,9 +53,7 @@ def parse_sqanti3_inputs(tsv_file, collapse_ISM=False):
     }
 
 def main():
-    parser = argparse.ArgumentParser(description="Parse SQANTI3 outputs from TSV list")
-    parser.add_argument("--collapse_ISM", action="store_true",
-                        help="Collapse ISM isoforms (default: False)")
+    parser = argparse.ArgumentParser(description="Parse SQANTI3 outputs from TSV file")
     parser.add_argument("--input_files", required=True,
                         help="TSV file with SQANTI3 output paths")
     parser.add_argument(
@@ -66,7 +62,7 @@ def main():
     )
     args = parser.parse_args()
 
-    result = parse_sqanti3_inputs(args.input_files, args.collapse_ISM)
+    result = parse_sqanti3_inputs(args.input_files)
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
