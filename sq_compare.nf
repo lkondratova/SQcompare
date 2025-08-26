@@ -4,14 +4,11 @@
  * Isoform analysis workflow
  */
 
-params.input           = "./input/*"        // path to raw input files
-params.samples         = "./samples.txt"    // optional sample annotation
-params.collapseISM     = true               // collapse ISM or not
-params.expression      = "./expression/*"   // path to expression files (optional)
-params.outdir          = "./results"        // output folder
+params.input           = "./input/*"        // tsv with paths to raw input files
+params.collapseISM     = false               // collapse ISM or not
+params.out             = "./results"        // output folder
 
 process PARSE {
-    tag "$sample_id"
 
     input:
     path input_files from channel.fromPath(params.input)
@@ -22,7 +19,7 @@ process PARSE {
     script:
     """
     mkdir -p parsed
-    python parse_sq_inputs.py --input $input_files --output parsed
+    python scripts/parse_sq_inputs.py --input $input_files --out ${params.out}
     """
 }
 

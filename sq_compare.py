@@ -30,7 +30,7 @@ def main():
     # Step 1: Parse inputs
     parsed_dir = os.path.join(args.outdir, "parsed")
     os.makedirs(parsed_dir, exist_ok=True)
-    run_script("parse_sq_inputs.py", ["--input_files", args.input_files, "--out", parsed_dir])
+    run_script("scripts/parse_sq_inputs.py", ["--input_files", args.input_files, "--out", parsed_dir])
     
     # Step 2: Collapse ISM (optional)
     if args.collapseISM:
