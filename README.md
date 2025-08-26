@@ -50,46 +50,31 @@ An example bash script for generating an input file can be found in `helper_scri
 
 ---
 
-## Pipeline Scripts
-
-```
-Script	Purpose
-parse_sq_inputs.py:        Parse SQANTI3 files and organize them into dataframes.
-collapse_ism.py:           Collapse incomplete splice match isoforms if requested.
-universal_id.py:	         Assign universal isoform IDs across all samples based on junction chains.
-tmm_norm.py:               Normalize expression values using TMM (edgeR-like normalization).
-generalize_isoforms.py:	   Create combined isoform matrices and information files for all samples.
-sq_compare_summary.py:	   Generate plots and tables summarizing isoform data.
-export_script.py:	         Export plots, tables, and summary statistics, optionally as a single PDF report.
-
-```
----
-
 ## Workflow Overview (Nextflow)
 
-1. Parse inputs: parse_sq_inputs.py
-2. Collapse ISM isoforms (optional): collapse_ism.py
-3. Assign universal IDs: universal_id.py
-4. Normalize expression (optional): tmm_norm.py
-5. Generate matrices and combined isoform info: generalize_isoforms.py
-6. Create plots and summary tables: sq_compare_summary.py
-7. Export report: export_script.py
+1. Parse inputs: `parse_sq_inputs.py` (Parse SQANTI3 files and organize them into dataframes)
+2. Collapse ISM isoforms (optional): `collapse_ism.py` (Collapse incomplete splice match isoforms if requested)
+3. Assign universal IDs: `universal_id.py` (Assign universal isoform IDs across all samples based on junction chains)
+4. Normalize expression (optional): `tmm_norm.py` (Normalize expression values using TMM edgeR-like normalization)
+5. Generate matrices and combined isoform info: `generalize_isoforms.py` (Create combined isoform matrices and information files for all samples)
+6. Create plots and summary tables: `sq_compare_summary.py` (Generate plots and tables summarizing isoform data)
+7. Export report: `export_script.py` (Export plots, tables, and summary statistics, optionally as a single PDF report)
 
 ---
 
 ## Output
 
-isoform_info.tsv: Summary of all isoforms with universal IDs, category, length, exons, etc.
+`isoform_info.tsv`: Summary of all isoforms with universal IDs, category, length, exons, etc.
 
-isoform_matrix.tsv: Combined matrix with isoform presence/absence or normalized expression per sample.
+`isoform_matrix.tsv`: Combined matrix with isoform presence/absence or normalized expression per sample.
 
-plots/: Figures for category counts, length distributions, heatmaps, UpSet plots, and exon distribution.
+`plots/`: Figures for category counts, length distributions, heatmaps, UpSet plots, and exon distribution.
 
-tables/: TSV files with counts and summary tables.
+`tables/`: TSV files with counts and summary tables.
 
-summary_report.txt: Text summary of isoform statistics.
+`summary_report.txt`: Text summary of isoform statistics.
 
-full_report.pdf: Optional combined report with all plots, tables, and statistics.
+`full_report.pdf`: Optional combined report with all plots, tables, and statistics.
 
 ---
 
@@ -124,11 +109,3 @@ reportlab
 Nextflow (optional, for pipeline automation)
 
 Conda (recommended for reproducibility)
-
-## Future Extensions
-
-Differential isoform expression (DIE) or differential transcript usage (DTU) analysis.
-
-Functional impact analysis of isoform switching (protein domain changes, NMD predictions).
-
-Integration with external tools like IsoformSwitchAnalyzeR for deeper splicing analysis.
