@@ -42,8 +42,8 @@ def parse_sqanti3_inputs(tsv_file):
         samples_info[sample_name] = {
             "classification": pd.read_csv(class_path, sep="\t"),
             "junctions": pd.read_csv(sj_path, sep="\t"),
-            "gtf":pd.read_csv(gtf_path, sep="\t"),
-            "expression": pd.read_csv(expr_path, sep="\t") if expr_path else None
+            "gtf":pd.read_csv(gtf_path, sep="\t", header=None),
+            "expression": pd.read_csv(expr_path, sep="\t", header=None) if expr_path else None
         }
 
     return {

@@ -3,6 +3,7 @@ import argparse
 import pickle
 import pandas as pd
 from collections import defaultdict
+import pyranges as pr
 
 def collapse_ISM(class_df, junc_df, expr_df=None):
     collapsed_dict = {}
@@ -74,36 +75,49 @@ def collapse_ISM(class_df, junc_df, expr_df=None):
 
     return class_df, junc_df, expr_df, collapsed_dict
 
+# Save new files
+def save_file(df, out, sample, suffix):
+    out_path = os.path.join(out, f"{sample}_{suffix}.ISMcollapsed.txt")
+    df.to_csv(out_path, sep="\t", index=False)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Collapse ISM isoforms per sample")
-    parser.add_argument("--class", required=True, help="Classification file")
-    parser.add_argument("--junctions", required=True, help="Junctions file")
-    parser.add_argument("--expression", help="Expression file (optional)")
     parser.add_argument("--pickle", required=True, help="Pickle file containing parsed dataframes")
     parser.add_argument("--out", required=True, help="Output folder")
     args = parser.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
 
-    # Load files
-    class_df = pd.read_csv(args.__dict__["class"], sep="\t")
-    junc_df = pd.read_csv(args.junctions, sep="\t")
-    expr_df = pd.read_csv(args.expression, sep="\t") if args.expression else None
+    with open(args.pickle, "rb") as f:
+        data = pickle.load(f)
+        for sample in data['data']['samples']:
+            class_df=data['data'][sample]['classification']
+            junc_df=data['data'][sample]['junctions']
+            gtf_df=data['data'][sample]['gtf']
+            expr_df=data['data'][sample]['expression'] if 'expression' in data['data'][sample] else None
+            
+            # Collapse
+            class_df, junc_df, expr_df, collapsed_dict = collapse_ISM(class_df, junc_df, expr_df)
+            save_file(class_df, args.out, sample, "classification")
+            save_file(junc_df, args.out, sample, "junctions")
+            save_file(expr_df, args.out, sample, "expression") if expr_df is not None else None
 
-    # Collapse
-    class_df, junc_df, expr_df, collapsed_dict = collapse_ISM(class_df, junc_df, expr_df)
+            # Filter GTF
+            attr=gtf_df[8]
+            gtf_df['transcript_id'] = attr.str.extract('transcript_id "([^"]+)"')
+            gtf_df = gtf_df[gtf_df['transcript_id'].isin(class_df['isoform'])]
+            gtf_out_path = os.path.join(args.out, f"{sample}_ISMcollapsed.txt")
+            gtf_df.drop(columns=['transcript_id']).to_csv(gtf_out_path, sep="\t", header=False, index=False)
 
-    # Save new files
-    def save_file(df, in_path, suffix="ISMcollapsed"):
-        name, ext = os.path.splitext(os.path.basename(in_path))
-        out_path = os.path.join(args.out, f"{name}.{suffix}{ext}")
-        df.to_csv(out_path, sep="\t", index=False)
-        return out_path
+            # Update sample data in pickle with collapsed files
+            data['data'][sample]['classification'] = class_df
+            data['data'][sample]['junctions'] = junc_df
+            data['data'][sample]['gtf'] = gtf_df.drop(columns=['transcript_id'])
+            if expr_df is not None:
+                data['data'][sample]['expression'] = expr_df
 
-    class_out = save_file(class_df, args.__dict__["class"])
-    junc_out = save_file(junc_df, args.junctions)
-    expr_out = save_file(expr_df, args.expression) if expr_df is not None else None
+            print(f"Processed sample {sample}: Kept {len(class_df)} isoforms, Dropped {len(junc_df) - len(class_df)} isoforms.")  
 
     # Save collapsed summary
     summary_path = os.path.join(args.out, "ISMcollapsed_summary.tsv")
@@ -112,16 +126,8 @@ def main():
         for survivor, removed in collapsed_dict.items():
             if removed:  # only log when something collapsed
                 f.write(f"{survivor}\t{','.join(removed)}\n")
-
-    # Update pickle so downstream scripts use collapsed data
-    with open(args.pickle, "rb") as f:
-        data = pickle.load(f)
-
-    data["classification"] = class_df
-    data["junctions"] = junc_df
-    if expr_df is not None:
-        data["expression"] = expr_df
-
+   
+    # Replace old pickle 
     with open(args.pickle, "wb") as f:
         pickle.dump(data, f)
 
