@@ -3,9 +3,9 @@ import argparse
 import pickle
 import pandas as pd
 from collections import defaultdict
-import pyranges as pr
 
-def collapse_ISM(class_df, junc_df, expr_df=None):
+
+def collapse_ISM(sample, class_df, junc_df, expr_df=None):
     collapsed_dict = {}
     kept = []
     dropped = []
@@ -66,14 +66,12 @@ def collapse_ISM(class_df, junc_df, expr_df=None):
     # Update expression
     if expr_df is not None:
         expr_df = expr_df.copy()
-        iso_to_expr = dict(zip(expr_df.iloc[:, 0], expr_df.iloc[:, 1]))
-
-        for survivor, removed in collapsed_dict.items():
-            expr_df.loc[expr_df.iloc[:, 0] == survivor, expr_df.columns[1]] += sum(iso_to_expr.get(r, 0) for r in removed)
-
-        expr_df = expr_df[~expr_df.iloc[:, 0].isin(dropped)]
-
-    return class_df, junc_df, expr_df, collapsed_dict
+        expr_df['survivor'] = expr_df.iloc[:, 0].map(lambda x: next((s for s, r in collapsed_dict.items() if x in r), x))
+        expr_df = expr_df.groupby('survivor').agg({expr_df.columns[0]: 'first', expr_df.columns[1]: 'sum'}).reset_index(drop=True)
+        expr_df.rename(columns={'survivor': expr_df.columns[0]}, inplace=True)
+        expr_df = expr_df[expr_df[expr_df.columns[0]].isin(kept)]
+    sample_dict={sample: collapsed_dict}
+    return class_df, junc_df, expr_df, sample_dict
 
 # Save new files
 def save_file(df, out, sample, suffix):
@@ -91,14 +89,14 @@ def main():
 
     with open(args.pickle, "rb") as f:
         data = pickle.load(f)
-        for sample in data['data']['samples']:
+        for sample in data['samples']:
             class_df=data['data'][sample]['classification']
             junc_df=data['data'][sample]['junctions']
             gtf_df=data['data'][sample]['gtf']
             expr_df=data['data'][sample]['expression'] if 'expression' in data['data'][sample] else None
             
             # Collapse
-            class_df, junc_df, expr_df, collapsed_dict = collapse_ISM(class_df, junc_df, expr_df)
+            class_df, junc_df, expr_df, collapsed_dict = collapse_ISM(sample, class_df, junc_df, expr_df)
             save_file(class_df, args.out, sample, "classification")
             save_file(junc_df, args.out, sample, "junctions")
             save_file(expr_df, args.out, sample, "expression") if expr_df is not None else None
@@ -122,10 +120,11 @@ def main():
     # Save collapsed summary
     summary_path = os.path.join(args.out, "ISMcollapsed_summary.tsv")
     with open(summary_path, "w") as f:
-        f.write("survivor_isoform\tcollapsed_isoforms\n")
-        for survivor, removed in collapsed_dict.items():
-            if removed:  # only log when something collapsed
-                f.write(f"{survivor}\t{','.join(removed)}\n")
+        f.write("sample\tsurvivor_isoform\tcollapsed_isoforms\n")
+        for sample, transcripts in collapsed_dict.items():
+            for survivor, removed in transcripts.items():
+                if removed:  # only log when something collapsed
+                    f.write(f"{sample}\t{survivor}\t{','.join(removed)}\n")
    
     # Replace old pickle 
     with open(args.pickle, "wb") as f:
