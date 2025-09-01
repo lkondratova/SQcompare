@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#!/usr/bin/env python3
 import argparse
 import pickle
 from pathlib import Path
@@ -7,15 +6,10 @@ import pandas as pd
 
 """
 python standardize_isoform_ids_gtf.py \
-    --input_pickle results/sqanti3_normalized.pkl \
-    --gtf_files data/UHR_chr22.gtf data/Brain_chr22.gtf \
-    --out results/standardized/
+    --pickle results/sqanti3_normalized.pkl \
+    --out output_folder
 
 """
-
-# -------------------------------
-# Helper functions
-# -------------------------------
 
 def extract_junction_chain_from_gtf(gtf_file):
     """
@@ -49,97 +43,81 @@ def extract_junction_chain_from_gtf(gtf_file):
 
     return chains
 
-# -------------------------------
-# Main standardization function
-# -------------------------------
-
-def standardize_isoforms_cross_sample(parsed_obj, gtf_files, out_dir=None):
+def standardize_isoforms_cross_sample(pickle, out_dir=None):
     """
     Standardize isoform IDs across all samples using junction chains from GTF files.
     """
-    samples = parsed_obj["samples"]
-
-    if len(samples) != len(gtf_files):
-        raise ValueError("Number of GTF files must match number of samples")
-
-    # Step 1 & 2: extract junction chains per sample
+    samples = pickle["data"]["samples"]
+    # extract junction chains per sample
     sample_chains = {}
-    for sample, gtf_file in zip(samples, gtf_files):
-        sample_chains[sample] = extract_junction_chain_from_gtf(gtf_file)
-
-    # Step 3: collect all junction chains into a set of unique chains
+    for sample in samples:
+        sample_chains[sample] = extract_junction_chain_from_gtf(pickle["data"][sample]["gtf"])
+        print(f"Extracted {len(sample_chains[sample])} junction chains for sample {sample}")
+    # collect all junction chains into a set of unique chains
     all_chains_set = set()
     for chains in sample_chains.values():
         for chain in chains.values():
             all_chains_set.add(tuple(chain))  # convert list -> tuple for hashability
 
-    # Step 4: assign universal IDs
+    # assign universal IDs
     unique_chains = list(all_chains_set)
-    ids = {tuple(chain): f"iso{i+1}" for i, chain in enumerate(unique_chains)}
+    ids = {tuple(chain): f"isoform{i+1}" for i, chain in enumerate(unique_chains)}
 
-    # Step 5 & 6: create sample-specific mapping and add to DataFrames
+    # create sample-specific mapping and add to DataFrames
     for sample in samples:
         chains = sample_chains[sample]
         iso_map = {tid: ids[tuple(chain)] for tid, chain in chains.items()}
 
         # Update junctions
-        junc_df = parsed_obj["data"][sample]["junctions"].copy()
+        junc_df = pickle["data"][sample]["junctions"].copy()
         junc_df["universal_id"] = junc_df["isoform"].map(iso_map)
-        parsed_obj["data"][sample]["junctions"] = junc_df
+        pickle["data"][sample]["junctions"] = junc_df
 
         # Update classification
-        class_df = parsed_obj["data"][sample]["classification"].copy()
+        class_df = pickle["data"][sample]["classification"].copy()
         class_df["universal_id"] = class_df["isoform"].map(iso_map)
-        parsed_obj["data"][sample]["classification"] = class_df
+        pickle["data"][sample]["classification"] = class_df
 
         # Update expression if available
-        expr_df = parsed_obj["data"][sample]["expression"]
+        expr_df = pickle["data"][sample]["expression"]
         if expr_df is not None:
             expr_df = expr_df.copy()
             expr_df.insert(0, "universal_id", expr_df.iloc[:, 0].map(iso_map))
-            parsed_obj["data"][sample]["expression"] = expr_df
+            pickle["data"][sample]["expression"] = expr_df
 
-        # Optionally save TSVs
-        if out_dir is not None:
-            out_dir.mkdir(parents=True, exist_ok=True)
-            junc_df.to_csv(out_dir / f"{sample}_junctions_std.tsv", sep="\t", index=False)
-            class_df.to_csv(out_dir / f"{sample}_classification_std.tsv", sep="\t", index=False)
-            if expr_df is not None:
-                expr_df.to_csv(out_dir / f"{sample}_expression_std.tsv", sep="\t", index=False)
+        # save TSVs
+        junc_df.to_csv(out_dir / f"{sample}_junctions_std.tsv", sep="\t", index=False)
+        class_df.to_csv(out_dir / f"{sample}_classification_std.tsv", sep="\t", index=False)
+        #if expr_df is not None:
+        #    expr_df.to_csv(out_dir / f"{sample}_expression_std.tsv", sep="\t", index=False)
 
-    return parsed_obj
-
-# -------------------------------
-# CLI
-# -------------------------------
+    return pickle
 
 def main():
     parser = argparse.ArgumentParser(description="Standardize isoform IDs across all samples using GTF")
-    parser.add_argument("--input_pickle", required=True,
+    parser.add_argument("--pickle", required=True,
                         help="Pickle file with parsed SQANTI3 outputs")
-    parser.add_argument("--gtf_files", required=True, nargs="+",
-                        help="List of GTF files in same order as input pickle")
     parser.add_argument("--out", required=True,
                         help="Output folder for updated TSVs and pickle")
+
     args = parser.parse_args()
 
     out_dir = Path(args.out)
 
     # Load parsed data
-    with open(args.input_pickle, "rb") as f:
+    with open(args.pickle, "rb") as f:
         parsed_obj = pickle.load(f)
-
-    # Standardize isoforms
-    updated_obj = standardize_isoforms_cross_sample(parsed_obj, args.gtf_files, out_dir=out_dir)
+        # Standardize isoforms
+        updated_obj = standardize_isoforms_cross_sample(args.pickle, args.out)
 
     # Save updated pickle
-    out_pickle = out_dir / "sqanti3_standardized.pkl"
-    with open(out_pickle, "wb") as f:
+    out_pickle = f"{out_dir}/sqanti3_standardized.pkl"
+    with open(args.pickle, "wb") as f:
         pickle.dump(updated_obj, f)
 
     print(f"[INFO] Standardized isoform IDs for {len(parsed_obj['samples'])} samples")
     print(f"[INFO] Updated pickle saved to {out_pickle}")
-    print(f"[INFO] TSVs saved in {out_dir}")
+    #print(f"[INFO] TSVs saved in {out_dir}")
 
 if __name__ == "__main__":
     main()

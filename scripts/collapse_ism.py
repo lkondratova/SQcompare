@@ -97,9 +97,9 @@ def main():
             
             # Collapse
             class_df, junc_df, expr_df, collapsed_dict = collapse_ISM(sample, class_df, junc_df, expr_df)
-            save_file(class_df, args.out, sample, "classification")
-            save_file(junc_df, args.out, sample, "junctions")
-            save_file(expr_df, args.out, sample, "expression") if expr_df is not None else None
+            #save_file(class_df, args.out, sample, "classification")
+            #save_file(junc_df, args.out, sample, "junctions")
+            #save_file(expr_df, args.out, sample, "expression") if expr_df is not None else None
 
             # Filter GTF
             attr=gtf_df[8]
@@ -127,11 +127,11 @@ def main():
                     f.write(f"{sample}\t{survivor}\t{','.join(removed)}\n")
    
     # Replace old pickle 
-    with open(args.pickle, "wb") as f:
+    with open(f'{args.out}/sqanti3_samples_ISMcollapsed.pkl', "wb") as f:
         pickle.dump(data, f)
 
-    print(f"Collapsed ISMs. Updated files saved to {args.out}. Pickle updated.")
-    print(f"Collapsed summary written to {summary_path}")
+    #print(f"Collapsed ISMs. Updated files saved to {args.out}. Pickle updated.")
+    #print(f"Collapsed summary written to {summary_path}")
 
 
 if __name__ == "__main__":

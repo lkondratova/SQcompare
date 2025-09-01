@@ -25,21 +25,25 @@ def main():
     args = parser.parse_args()
     
     # Make output folders
-    os.makedirs(args.outdir, exist_ok=True)
+    os.makedirs(args.out, exist_ok=True)
     
     # Step 1: Parse inputs
-    parsed_dir = os.path.join(args.outdir, "parsed")
     os.makedirs(parsed_dir, exist_ok=True)
-    run_script("scripts/parse_sq_inputs.py", ["--input_files", args.input_files, "--out", parsed_dir])
+    run_script("scripts/parse_sq_inputs.py", ["--input_files", args.input_files, "--out", args.out])
     
     # Step 2: Collapse ISM (optional)
     if args.collapseISM:
-        collapsed_dir = os.path.join(args.outdir, "collapsed")
-        os.makedirs(collapsed_dir, exist_ok=True)
-        run_script("collapse_ism.py", ["--input_files", parsed_dir, "--out", collapsed_dir])
-        working_dir = collapsed_dir
-    else:
-        working_dir = parsed_dir
+        run_script("collapse_ism.py", ["--pickle", f'{args.out}/sqanti3_samples.pkl', "--out", args.out])
+
+
+
+
+
+
+
+
+
+        
     
     # Step 3: Assign universal IDs
     uid_dir = os.path.join(args.outdir, "universal")
