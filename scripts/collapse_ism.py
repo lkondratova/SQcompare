@@ -105,8 +105,8 @@ def main():
             attr=gtf_df[8]
             gtf_df['transcript_id'] = attr.str.extract('transcript_id "([^"]+)"')
             gtf_df = gtf_df[gtf_df['transcript_id'].isin(class_df['isoform'])]
-            gtf_out_path = os.path.join(args.out, f"{sample}_ISMcollapsed.txt")
-            gtf_df.drop(columns=['transcript_id']).to_csv(gtf_out_path, sep="\t", header=False, index=False)
+            #gtf_out_path = os.path.join(args.out, f"{sample}_ISMcollapsed.gtf")
+            #gtf_df.drop(columns=['transcript_id']).to_csv(gtf_out_path, sep="\t", header=False, index=False)
 
             # Update sample data in pickle with collapsed files
             data['data'][sample]['classification'] = class_df
@@ -131,7 +131,7 @@ def main():
         pickle.dump(data, f)
 
     #print(f"Collapsed ISMs. Updated files saved to {args.out}. Pickle updated.")
-    #print(f"Collapsed summary written to {summary_path}")
+    print(f"Collapsed summary written to {summary_path}")
 
 
 if __name__ == "__main__":

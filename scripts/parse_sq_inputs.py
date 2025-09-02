@@ -43,7 +43,7 @@ def parse_sqanti3_inputs(tsv_file):
             "classification": pd.read_csv(class_path, sep="\t"),
             "junctions": pd.read_csv(sj_path, sep="\t"),
             "gtf":pd.read_csv(gtf_path, sep="\t", header=None),
-            "expression": pd.read_csv(expr_path, sep="\t", header=None) if expr_path else None
+            "expression": pd.read_csv(expr_path, sep="\t", header=None, names=['isoform', 'count']) if expr_path else None
         }
 
     return {
@@ -71,8 +71,8 @@ def main():
     with open(out_file, "wb") as f:
         pickle.dump(result, f)
 
-    print(f"[INFO] Parsed {result['n_samples']} samples: {', '.join(result['samples'])}")
-    print(f"[INFO] Results saved in {out_file}")
+    print(f"Parsed {result['n_samples']} samples: {', '.join(result['samples'])}")
+    print(f"Results saved in {out_file}")
 
 if __name__ == "__main__":
     main()

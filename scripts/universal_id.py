@@ -17,11 +17,12 @@ def extract_junction_chain_from_gtf(gtf_file):
     Returns dict: transcript_id -> list of junction coordinates [chr, start1, end1, start2, end2,...]
     """
     chains = {}
-    gtf = pd.read_csv(gtf_file, sep="\t", comment="#", header=None,
-                      names=["chr", "source", "feature", "start", "end",
-                             "score", "strand", "frame", "attribute"])
-    
-    exons = gtf[gtf["feature"] == "exon"].copy()
+    #gtf = pd.read_csv(gtf_file, sep="\t", comment="#", header=None,
+    #                  names=["chr", "source", "feature", "start", "end",
+    #                         "score", "strand", "frame", "attribute"])
+    gtf_file.columns = ["chr", "source", "feature", "start", "end",
+                         "score", "strand", "frame", "attribute"]
+    exons = gtf_file[gtf_file["feature"] == "exon"].copy()
     
     # Extract transcript_id
     def get_transcript_id(attr):
@@ -43,15 +44,15 @@ def extract_junction_chain_from_gtf(gtf_file):
 
     return chains
 
-def standardize_isoforms_cross_sample(pickle, out_dir=None):
+def standardize_isoforms_cross_sample(pickle_df, out_dir=None):
     """
     Standardize isoform IDs across all samples using junction chains from GTF files.
     """
-    samples = pickle["data"]["samples"]
+    samples = pickle_df["samples"]
     # extract junction chains per sample
     sample_chains = {}
     for sample in samples:
-        sample_chains[sample] = extract_junction_chain_from_gtf(pickle["data"][sample]["gtf"])
+        sample_chains[sample] = extract_junction_chain_from_gtf(pickle_df["data"][sample]["gtf"])
         print(f"Extracted {len(sample_chains[sample])} junction chains for sample {sample}")
     # collect all junction chains into a set of unique chains
     all_chains_set = set()
@@ -69,29 +70,29 @@ def standardize_isoforms_cross_sample(pickle, out_dir=None):
         iso_map = {tid: ids[tuple(chain)] for tid, chain in chains.items()}
 
         # Update junctions
-        junc_df = pickle["data"][sample]["junctions"].copy()
+        junc_df = pickle_df["data"][sample]["junctions"].copy()
         junc_df["universal_id"] = junc_df["isoform"].map(iso_map)
-        pickle["data"][sample]["junctions"] = junc_df
+        pickle_df["data"][sample]["junctions"] = junc_df
 
         # Update classification
-        class_df = pickle["data"][sample]["classification"].copy()
+        class_df = pickle_df["data"][sample]["classification"].copy()
         class_df["universal_id"] = class_df["isoform"].map(iso_map)
-        pickle["data"][sample]["classification"] = class_df
+        pickle_df["data"][sample]["classification"] = class_df
 
         # Update expression if available
-        expr_df = pickle["data"][sample]["expression"]
+        expr_df = pickle_df["data"][sample]["expression"]
         if expr_df is not None:
             expr_df = expr_df.copy()
             expr_df.insert(0, "universal_id", expr_df.iloc[:, 0].map(iso_map))
-            pickle["data"][sample]["expression"] = expr_df
+            pickle_df["data"][sample]["expression"] = expr_df
 
         # save TSVs
-        junc_df.to_csv(out_dir / f"{sample}_junctions_std.tsv", sep="\t", index=False)
-        class_df.to_csv(out_dir / f"{sample}_classification_std.tsv", sep="\t", index=False)
+        junc_df.to_csv(f"{out_dir}/{sample}_junctions_std.tsv", sep="\t", index=False)
+        class_df.to_csv(f"{out_dir}/{sample}_classification_std.tsv", sep="\t", index=False)
         #if expr_df is not None:
         #    expr_df.to_csv(out_dir / f"{sample}_expression_std.tsv", sep="\t", index=False)
 
-    return pickle
+    return pickle_df
 
 def main():
     parser = argparse.ArgumentParser(description="Standardize isoform IDs across all samples using GTF")
@@ -106,18 +107,18 @@ def main():
 
     # Load parsed data
     with open(args.pickle, "rb") as f:
-        parsed_obj = pickle.load(f)
+        pickle_df = pickle.load(f)
         # Standardize isoforms
-        updated_obj = standardize_isoforms_cross_sample(args.pickle, args.out)
+        updated_obj = standardize_isoforms_cross_sample(pickle_df, args.out)
 
     # Save updated pickle
     out_pickle = f"{out_dir}/sqanti3_standardized.pkl"
     with open(args.pickle, "wb") as f:
         pickle.dump(updated_obj, f)
 
-    print(f"[INFO] Standardized isoform IDs for {len(parsed_obj['samples'])} samples")
-    print(f"[INFO] Updated pickle saved to {out_pickle}")
-    #print(f"[INFO] TSVs saved in {out_dir}")
+    print(f"Standardized isoform IDs for {len(pickle_df['samples'])} samples")
+    print(f"Updated pickle saved to {out_pickle}")
+    #print(f"TSVs saved in {out_dir}")
 
 if __name__ == "__main__":
     main()
