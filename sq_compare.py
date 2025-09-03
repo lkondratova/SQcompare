@@ -42,6 +42,23 @@ def main():
         pickle_df = f'{args.out}/sqanti3_samples.pkl'
  
     run_script("scripts/universal_id.py", ["--pickle", pickle_df, "--out", args.out])
+
+    # Step 4: Create matrix and isoform info
+    run_script("generalize_isoforms.py", ["--pickle", f"{args.out}/sqanti3_standardized.pkl", "--out", args.out])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     # Step 4: TMM normalization (optional)
     if args.expression_provided:
@@ -54,12 +71,9 @@ def main():
 
 
 
+
     
-    
-    # Step 5: Create matrix and isoform info
-    gen_dir = os.path.join(args.outdir, "generalized")
-    os.makedirs(gen_dir, exist_ok=True)
-    run_script("generalize_isoforms.py", ["--input_files", working_dir, "--out", gen_dir])
+   
     
     # Step 6: Generate plots and summary
     plots_dir = os.path.join(args.outdir, "plots")

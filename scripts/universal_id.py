@@ -77,6 +77,7 @@ def standardize_isoforms_cross_sample(pickle_df, out_dir=None):
         # Update classification
         class_df = pickle_df["data"][sample]["classification"].copy()
         class_df["universal_id"] = class_df["isoform"].map(iso_map)
+        class_df["junction_chain"] = class_df["isoform"].map(chains)
         pickle_df["data"][sample]["classification"] = class_df
 
         # Update expression if available
