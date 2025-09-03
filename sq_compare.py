@@ -34,30 +34,27 @@ def main():
     # Step 2: Collapse ISM (optional)
     if args.collapseISM:
         run_script("collapse_ism.py", ["--pickle", f'{args.out}/sqanti3_samples.pkl', "--out", args.out])
-
-
-
-
-
-
-
-
-
-        
     
     # Step 3: Assign universal IDs
-    uid_dir = os.path.join(args.outdir, "universal")
-    os.makedirs(uid_dir, exist_ok=True)
-    run_script("universal_id.py", ["--input_files", working_dir, "--out", uid_dir])
+    if args.collapseISM:
+        pickle_df = f'{args.out}/sqanti3_samples_ISMcollapsed.pkl' # use collapsed pickle if ISM collapsing was done
+    else:
+        pickle_df = f'{args.out}/sqanti3_samples.pkl'
+ 
+    run_script("scripts/universal_id.py", ["--pickle", pickle_df, "--out", args.out])
     
     # Step 4: TMM normalization (optional)
     if args.expression_provided:
-        norm_dir = os.path.join(args.outdir, "normalized")
         os.makedirs(norm_dir, exist_ok=True)
-        run_script("tmm_norm.py", ["--input_files", uid_dir, "--out", norm_dir])
-        working_dir = norm_dir
-    else:
-        working_dir = uid_dir
+        pickle_df = f'{args.out}/sqanti3_standardizeds.pkl'
+        run_script("tmm_norm.py", ["--input_files", pickle_df, "--out", args.out])
+    
+
+
+
+
+
+    
     
     # Step 5: Create matrix and isoform info
     gen_dir = os.path.join(args.outdir, "generalized")

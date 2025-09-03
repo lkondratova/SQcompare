@@ -113,7 +113,7 @@ def main():
 
     # Save updated pickle
     out_pickle = f"{out_dir}/sqanti3_standardized.pkl"
-    with open(args.pickle, "wb") as f:
+    with open(out_pickle, "wb") as f:
         pickle.dump(updated_obj, f)
 
     print(f"Standardized isoform IDs for {len(pickle_df['samples'])} samples")
