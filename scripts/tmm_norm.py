@@ -74,12 +74,14 @@ def main():
 
     # Save per-sample TSVs
     for sample, df in norm_expr.items():
+        df.reset_index(inplace=True)
         out_file = out_dir / f"{sample}_normalized_expression.tsv"
         df.to_csv(out_file, sep="\t", index=True)
+        parsed["data"][sample]["expression"] = df
         print(f"Saved {out_file}")
 
     # Save updated pickle with normalized expression
-    parsed["normalized_expression"] = norm_expr
+    #parsed["normalized_expression"] = norm_expr
     out_file = f"{args.out}/sqanti3_normalized.pkl"
     with open(out_file, "wb") as f:
         pickle.dump(parsed, f)

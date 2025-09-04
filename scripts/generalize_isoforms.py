@@ -27,7 +27,6 @@ def main():
             class_df = pickle_df["data"][sample]["classification"].copy()
             class_df["sample"] = sample
             all_classifications.append(class_df)
-
             expr_df = pickle_df["data"][sample]["expression"]
             if expr_df is not None:
                 expr_df = expr_df[["universal_id", "count"]].copy()
@@ -65,7 +64,6 @@ def main():
             if sample in all_expr:
                 # expression available
                 expr_series = all_expr[sample]
-                print(expr_series)
                 if expr_series.index.has_duplicates:
                     expr_series = expr_series.groupby(expr_series.index).sum()
                 col = expr_series.reindex(isoform_ids).fillna(0)
