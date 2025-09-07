@@ -67,17 +67,23 @@ def main():
                 if expr_series.index.has_duplicates:
                     expr_series = expr_series.groupby(expr_series.index).sum()
                 col = expr_series.reindex(isoform_ids).fillna(0)
-                matrix[sample] = col
+                matrix[sample] = col        
             else:
                 # binary presence/absence
                 present_ids = set(combined.loc[combined["sample"] == sample, "universal_id"])
                 matrix[sample] = [1 if uid in present_ids else 0 for uid in isoform_ids]
 
-        matrix = matrix.reset_index().rename(columns={"index": "universal_id"})
+        # Replace universal ids with corresponding unique_jc
+        uid_to_jc = dict(zip(isoform_info["universal_id"], isoform_info["unique_jc"]))
+        matrix.index = matrix.index.map(lambda uid: str(uid_to_jc.get(uid, uid)))
+        #matrix.index = matrix.index.map(uid_to_jc)
+        matrix.index.name = "unique_jc"
+        matrix = matrix.reset_index().rename(columns={"index": "unique_jc"})
 
         # --- Save ---
         isoform_info.to_csv(os.path.join(f"{args.out}/summarized", "isoform_info.tsv"), sep="\t", index=False)
         matrix.to_csv(os.path.join(f"{args.out}/summarized", "isoform_matrix.tsv"), sep="\t", index=False)
+        print(f"Saved isoform_info.tsv and isoform_matrix.tsv to {args.out}/summarized")
         with open(os.path.join(args.out, "combined.pkl"), "wb") as f:
             pickle.dump({"isoform_info": isoform_info, "isoform_matrix": matrix}, f)
 
