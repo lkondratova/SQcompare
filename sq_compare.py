@@ -24,18 +24,17 @@ def main():
     
     args = parser.parse_args()
     
-    # Make output folders
+    #Make output folders
     os.makedirs(args.out, exist_ok=True)
     
-    # Step 1: Parse inputs
-    os.makedirs(parsed_dir, exist_ok=True)
+    #1: Parse inputs
     run_script("scripts/parse_sq_inputs.py", ["--input_files", args.input_files, "--out", args.out])
     
-    # Step 2: Collapse ISM (optional)
+    #2: Collapse ISM (optional)
     if args.collapseISM:
-        run_script("collapse_ism.py", ["--pickle", f'{args.out}/sqanti3_samples.pkl', "--out", args.out])
+        run_script("scripts/collapse_ism.py", ["--pickle", f'{args.out}/sqanti3_samples.pkl', "--out", args.out])
     
-    # Step 3: Assign universal IDs
+    #3: Assign universal IDs
     if args.collapseISM:
         pickle_df = f'{args.out}/sqanti3_samples_ISMcollapsed.pkl' # use collapsed pickle if ISM collapsing was done
     else:
@@ -43,51 +42,23 @@ def main():
  
     run_script("scripts/universal_id.py", ["--pickle", pickle_df, "--out", args.out])
 
-    # Step 4: Create matrix and isoform info
-    run_script("generalize_isoforms.py", ["--pickle", f"{args.out}/sqanti3_standardized.pkl", "--out", args.out])
+    #4 TMM normalization of expression values if provided
+    with open(args.input_files) as f:
+        first_line = f.readline()
+        num_cols = len(first_line.strip().split('\t'))
+    if num_cols == 4:
+        run_script("scripts/tmm_norm.py", ["--pickle", f"{args.out}/sqanti3_standardized.pkl", "--out", args.out])
+        #5 create matrix and isoform info
+        run_script("scripts/generalize_isoforms.py", ["--pickle", f"{args.out}/sqanti3_normalized.pkl", "--out", args.out])
+    else:
+        run_script("scripts/sq_standardized.py", ["--pickle", f"{args.out}/sqanti3_standardized.pkl", "--out", args.out])
 
+    #5: Visualize comparisons
+    run_script("scripts/sq_compare_summary.py", ["--out", args.out])
 
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    # Step 4: TMM normalization (optional)
-    if args.expression_provided:
-        os.makedirs(norm_dir, exist_ok=True)
-        pickle_df = f'{args.out}/sqanti3_standardizeds.pkl'
-        run_script("tmm_norm.py", ["--input_files", pickle_df, "--out", args.out])
-    
-
-
-
-
-
-
-    
-   
-    
-    # Step 6: Generate plots and summary
-    plots_dir = os.path.join(args.outdir, "plots")
-    os.makedirs(plots_dir, exist_ok=True)
-    run_script("sq_compare_summary.py", ["--input_files", gen_dir, "--out", plots_dir])
-    
-    # Step 7: Export final report
-    export_dir = os.path.join(args.outdir, "final_report")
-    os.makedirs(export_dir, exist_ok=True)
-    run_script("export_script.py", ["--input", plots_dir, "--out", export_dir])
-    
-    print(f"Pipeline finished! Results are in: {args.outdir}")
-
+    # Delete all pickle files in the output directory
+    for file in os.listdir(args.out):
+        if file.endswith(".pkl"):
+            os.remove(os.path.join(args.out, file))
 if __name__ == "__main__":
     main()
-
-#python main.py --input_files inputs.tsv --out results --collapseISM
