@@ -1,0 +1,56 @@
+Sep-08 21:57:17.576 [main] DEBUG nextflow.cli.Launcher - $> nextflow run sq_compare.nf --input_files /home/myla/Desktop/SQ_files/sq_input_files.txt --out /home/myla/Desktop/out
+Sep-08 21:57:17.689 [main] DEBUG nextflow.cli.CmdRun - N E X T F L O W  ~  version 25.04.7
+Sep-08 21:57:17.712 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/home/myla/.nextflow/plugins; core-plugins: nf-amazon@2.15.0-patch1,nf-azure@1.16.0-patch1,nf-cloudcache@0.4.3,nf-codecommit@0.2.3,nf-console@1.2.1,nf-google@1.21.1,nf-k8s@1.0.0,nf-tower@1.11.4-patch1,nf-wave@1.12.1
+Sep-08 21:57:17.737 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Sep-08 21:57:17.738 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Sep-08 21:57:17.741 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Sep-08 21:57:17.755 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Sep-08 21:57:17.811 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /home/myla/.nextflow/secrets/store.json
+Sep-08 21:57:17.825 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@b558294] - activable => nextflow.secret.LocalSecretsProvider@b558294
+Sep-08 21:57:17.880 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 from script declaration
+Sep-08 21:57:17.900 [main] DEBUG nextflow.cli.CmdRun - Launching `sq_compare.nf` [ecstatic_lovelace] DSL2 - revision: 49b5c50184
+Sep-08 21:57:17.903 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Sep-08 21:57:17.904 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Sep-08 21:57:17.975 [main] DEBUG nextflow.Session - Session UUID: 0d36957d-4ca4-4e61-b688-1009b7fd8118
+Sep-08 21:57:17.976 [main] DEBUG nextflow.Session - Run name: ecstatic_lovelace
+Sep-08 21:57:17.976 [main] DEBUG nextflow.Session - Executor pool size: 4
+Sep-08 21:57:17.987 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Sep-08 21:57:17.996 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=12; workQueue=LinkedBlockingQueue[-1]; allowCoreThreadTimeout=false
+Sep-08 21:57:18.026 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 25.04.7 build 5955
+  Created: 08-09-2025 13:29 UTC (09:29 EDT)
+  System: Linux 6.8.0-79-generic
+  Runtime: Groovy 4.0.26 on OpenJDK 64-Bit Server VM 21.0.8+9-Ubuntu-0ubuntu124.04.1
+  Encoding: UTF-8 (UTF-8)
+  Process: 38516@myla-IdeaPad-Flex-5-14ITL05 [127.0.1.1]
+  CPUs: 4 - Mem: 7.3 GB (1.3 GB) - Swap: 4 GB (2 GB)
+Sep-08 21:57:18.055 [main] DEBUG nextflow.Session - Work-dir: /home/myla/GitHub/SQcompare/work [ext2/ext3]
+Sep-08 21:57:18.056 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /home/myla/GitHub/SQcompare/bin
+Sep-08 21:57:18.067 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Sep-08 21:57:18.078 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Sep-08 21:57:18.085 [main] DEBUG nextflow.Session - Observer factory (v2): LinObserverFactory
+Sep-08 21:57:18.116 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Sep-08 21:57:18.126 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 5; maxThreads: 1000
+Sep-08 21:57:18.219 [main] DEBUG nextflow.Session - Session start
+Sep-08 21:57:18.939 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Sep-08 21:57:18.966 [main] WARN  nextflow.script.ScriptBinding - Access to undefined parameter `collapseISM` -- Initialise it to a default value eg. `params.collapseISM = some_value`
+Sep-08 21:57:19.003 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+  Script_c1fd262c9611c667: /home/myla/GitHub/SQcompare/sq_compare.nf
+Sep-08 21:57:19.015 [main] DEBUG nextflow.Session - Session aborted -- Cause: No such property: normalized_pickle for class: Script_c1fd262c9611c667
+Sep-08 21:57:19.027 [main] ERROR nextflow.cli.Launcher - @unknown
+groovy.lang.MissingPropertyException: No such property: normalized_pickle for class: Script_c1fd262c9611c667
+	at org.codehaus.groovy.runtime.ScriptBytecodeAdapter.unwrap(ScriptBytecodeAdapter.java:67)
+	at org.codehaus.groovy.vmplugin.v8.IndyGuardsFiltersAndSignatures.unwrap(IndyGuardsFiltersAndSignatures.java:163)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
+	at Script_c1fd262c9611c667.runScript(Script_c1fd262c9611c667:134)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
+	at nextflow.script.BaseScript.run0(BaseScript.groovy:159)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
+	at nextflow.script.BaseScript.run(BaseScript.groovy:193)
+	at nextflow.script.parser.v1.ScriptLoaderV1.runScript(ScriptLoaderV1.groovy:246)
+	at nextflow.script.parser.v1.ScriptLoaderV1.runScript(ScriptLoaderV1.groovy)
+	at nextflow.script.ScriptRunner.run(ScriptRunner.groovy:246)
+	at nextflow.script.ScriptRunner.execute(ScriptRunner.groovy:139)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:379)
+	at nextflow.cli.Launcher.run(Launcher.groovy:513)
+	at nextflow.cli.Launcher.main(Launcher.groovy:673)

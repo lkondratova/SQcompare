@@ -1,0 +1,84 @@
+Sep-08 21:26:29.716 [main] DEBUG nextflow.cli.Launcher - $> nextflow run sq_compare.nf --input_files /home/myla/Desktop/SQ_files/sq_input_files.txt --out /home/myla/Desktop/out
+Sep-08 21:26:29.808 [main] DEBUG nextflow.cli.CmdRun - N E X T F L O W  ~  version 25.04.7
+Sep-08 21:26:29.836 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/home/myla/.nextflow/plugins; core-plugins: nf-amazon@2.15.0-patch1,nf-azure@1.16.0-patch1,nf-cloudcache@0.4.3,nf-codecommit@0.2.3,nf-console@1.2.1,nf-google@1.21.1,nf-k8s@1.0.0,nf-tower@1.11.4-patch1,nf-wave@1.12.1
+Sep-08 21:26:29.860 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Sep-08 21:26:29.861 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Sep-08 21:26:29.863 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Sep-08 21:26:29.879 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Sep-08 21:26:29.934 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /home/myla/.nextflow/secrets/store.json
+Sep-08 21:26:29.947 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@b558294] - activable => nextflow.secret.LocalSecretsProvider@b558294
+Sep-08 21:26:30.000 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 from script declaration
+Sep-08 21:26:30.014 [main] DEBUG nextflow.cli.CmdRun - Launching `sq_compare.nf` [elated_kalam] DSL2 - revision: a7a67caf27
+Sep-08 21:26:30.016 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Sep-08 21:26:30.017 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[]
+Sep-08 21:26:30.087 [main] DEBUG nextflow.Session - Session UUID: fc615e63-0791-4895-a338-44683ef28a8a
+Sep-08 21:26:30.088 [main] DEBUG nextflow.Session - Run name: elated_kalam
+Sep-08 21:26:30.088 [main] DEBUG nextflow.Session - Executor pool size: 4
+Sep-08 21:26:30.100 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Sep-08 21:26:30.109 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=12; workQueue=LinkedBlockingQueue[-1]; allowCoreThreadTimeout=false
+Sep-08 21:26:30.135 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 25.04.7 build 5955
+  Created: 08-09-2025 13:29 UTC (09:29 EDT)
+  System: Linux 6.8.0-79-generic
+  Runtime: Groovy 4.0.26 on OpenJDK 64-Bit Server VM 21.0.8+9-Ubuntu-0ubuntu124.04.1
+  Encoding: UTF-8 (UTF-8)
+  Process: 37687@myla-IdeaPad-Flex-5-14ITL05 [127.0.1.1]
+  CPUs: 4 - Mem: 7.3 GB (621.4 MB) - Swap: 4 GB (2.1 GB)
+Sep-08 21:26:30.164 [main] DEBUG nextflow.Session - Work-dir: /home/myla/GitHub/SQcompare/work [ext2/ext3]
+Sep-08 21:26:30.164 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /home/myla/GitHub/SQcompare/bin
+Sep-08 21:26:30.178 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Sep-08 21:26:30.191 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Sep-08 21:26:30.198 [main] DEBUG nextflow.Session - Observer factory (v2): LinObserverFactory
+Sep-08 21:26:30.235 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Sep-08 21:26:30.247 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 5; maxThreads: 1000
+Sep-08 21:26:30.343 [main] DEBUG nextflow.Session - Session start
+Sep-08 21:26:30.905 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+Sep-08 21:26:30.914 [main] ERROR nextflow.cli.Launcher - Script compilation error
+- file : /home/myla/GitHub/SQcompare/sq_compare.nf
+- cause: The current parameter list already contains a parameter of the name it
+ @ line 113, column 14.
+           .map { it -> 
+                ^
+
+1 error
+
+nextflow.exception.ScriptCompilationException: Script compilation error
+- file : /home/myla/GitHub/SQcompare/sq_compare.nf
+- cause: The current parameter list already contains a parameter of the name it
+ @ line 113, column 14.
+           .map { it -> 
+                ^
+
+1 error
+
+	at nextflow.script.parser.v1.ScriptLoaderV1.parse0(ScriptLoaderV1.groovy:204)
+	at nextflow.script.parser.v1.ScriptLoaderV1.parse(ScriptLoaderV1.groovy:215)
+	at nextflow.script.parser.v1.ScriptLoaderV1.parse(ScriptLoaderV1.groovy)
+	at nextflow.script.ScriptRunner.parseScript(ScriptRunner.groovy:232)
+	at nextflow.script.ScriptRunner.execute(ScriptRunner.groovy:137)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:379)
+	at nextflow.cli.Launcher.run(Launcher.groovy:513)
+	at nextflow.cli.Launcher.main(Launcher.groovy:673)
+Caused by: org.codehaus.groovy.control.MultipleCompilationErrorsException: startup failed:
+Script_8e9cbe6794a431e6: 113: The current parameter list already contains a parameter of the name it
+ @ line 113, column 14.
+           .map { it -> 
+                ^
+
+1 error
+
+	at org.codehaus.groovy.control.ErrorCollector.failIfErrors(ErrorCollector.java:292)
+	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:910)
+	at org.codehaus.groovy.control.CompilationUnit.processPhaseOperations(CompilationUnit.java:692)
+	at org.codehaus.groovy.control.CompilationUnit.compile(CompilationUnit.java:666)
+	at groovy.lang.GroovyClassLoader.doParseClass(GroovyClassLoader.java:365)
+	at groovy.lang.GroovyClassLoader.lambda$parseClass$2(GroovyClassLoader.java:314)
+	at org.codehaus.groovy.runtime.memoize.StampedCommonCache.compute(StampedCommonCache.java:163)
+	at org.codehaus.groovy.runtime.memoize.StampedCommonCache.getAndPut(StampedCommonCache.java:154)
+	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:314)
+	at groovy.lang.GroovyShell.parseClass(GroovyShell.java:572)
+	at groovy.lang.GroovyShell.parse(GroovyShell.java:585)
+	at groovy.lang.GroovyShell.parse(GroovyShell.java:639)
+	at groovy.lang.GroovyShell.parse(GroovyShell.java:643)
+	at nextflow.script.parser.v1.ScriptLoaderV1.parse0(ScriptLoaderV1.groovy:183)
+	... 7 common frames omitted
