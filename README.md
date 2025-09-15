@@ -90,9 +90,9 @@ Uses the provided sq_compare_environment.yml for reproducibility.
 
 --input: tab-separated file with paths to output SQANTI3 files
 
---collapseISM: True/False (default False)
-
 --out: output directory
+
+--collapseISM (optional)
 
 ## Dependencies
 
@@ -105,7 +105,5 @@ matplotlib, seaborn
 upsetplot
 
 reportlab
-
-Nextflow (optional, for pipeline automation)
 
 Conda (recommended for reproducibility)
