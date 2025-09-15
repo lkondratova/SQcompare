@@ -214,6 +214,7 @@ if n_samples < 7:
         bottom += cat_props_df[cat].values
     ax.set_ylabel("Proportion of UJC Categories")
     ax.set_xlabel("Sample")
+    plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
     ax.set_title("UJC Category Composition Per Sample", fontsize=15)
     ax.set_ylim(0, 1)
     ax.legend(
