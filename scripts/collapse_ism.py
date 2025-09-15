@@ -2,7 +2,7 @@ import os
 import argparse
 import pickle
 import pandas as pd
-from collections import defaultdict
+#from collections import defaultdict
 
 
 def collapse_ISM(sample, class_df, junc_df, expr_df=None):
@@ -105,8 +105,6 @@ def main():
             attr=gtf_df[8]
             gtf_df['transcript_id'] = attr.str.extract('transcript_id "([^"]+)"')
             gtf_df = gtf_df[gtf_df['transcript_id'].isin(class_df['isoform'])]
-            #gtf_out_path = os.path.join(args.out, f"{sample}_ISMcollapsed.gtf")
-            #gtf_df.drop(columns=['transcript_id']).to_csv(gtf_out_path, sep="\t", header=False, index=False)
 
             # Update sample data in pickle with collapsed files
             data['data'][sample]['classification'] = class_df
@@ -115,7 +113,7 @@ def main():
             if expr_df is not None:
                 data['data'][sample]['expression'] = expr_df
 
-            print(f"Processed sample {sample}: Kept {len(class_df)} isoforms, Dropped {len(junc_df) - len(class_df)} isoforms.")  
+            print(f"Processed sample {sample}: Kept {len(class_df)} isoforms.")  
 
     # Save collapsed summary
     summary_path = os.path.join(args.out, "ISMcollapsed_summary.tsv")

@@ -51,7 +51,7 @@ def main():
         #5 create matrix and isoform info
         run_script("scripts/generalize_isoforms.py", ["--pickle", f"{args.out}/sqanti3_normalized.pkl", "--out", args.out])
     else:
-        run_script("scripts/sq_standardized.py", ["--pickle", f"{args.out}/sqanti3_standardized.pkl", "--out", args.out])
+        run_script("scripts/generalize_isoforms.py", ["--pickle", f"{args.out}/sqanti3_standardized.pkl", "--out", args.out])
 
     #5: Visualize comparisons
     run_script("scripts/sq_compare_summary.py", ["--out", args.out])
