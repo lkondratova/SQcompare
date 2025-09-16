@@ -234,8 +234,8 @@ for sample in samples:
     subset = isoform_info[isoform_info["unique_jc"].isin(
         matrix.loc[matrix[sample]>0, "unique_jc"]
     )]
-    if not subset["average_length"].empty:
-        sns.kdeplot(subset["average_length"], label=sample, ax=ax)
+    if not subset["length"].empty:
+        sns.kdeplot(subset["length"], label=sample, ax=ax)
     ax.set_title("UJC Length Distributions")
     ax.set_xlabel("Length")
     ax.set_ylabel("Density")

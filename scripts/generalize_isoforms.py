@@ -51,8 +51,7 @@ def main():
             .rename(columns={
                 "junction_chain": "unique_jc",
                 "structural_category": "category",
-                "exons": "exons_n",
-                "length": "average_length"
+                "exons": "exons_n"
             })
         )
 
