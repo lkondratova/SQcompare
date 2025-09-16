@@ -152,7 +152,7 @@ with PdfPages(report_path) as pdf:
         cellLoc='right'
     )
     table2.auto_set_font_size(False)
-    table2.set_fontsize(12)
+    table2.set_fontsize(8)
     table2.scale(1.2, 1.2)
     for (row, col), cell in table2.get_celld().items():
         if row == 0:  # header row
@@ -250,7 +250,7 @@ for sample in samples:
     plt.close(fig)
 print('UJC length distribution plot done')
 
-    # heatmap (if expression values provided)
+# heatmap (if expression values provided)
 if (matrix[samples].values > 1).any():
     variances = matrix[samples].var(axis=1)
     top = matrix.loc[variances.nlargest(1000).index] 
