@@ -1,6 +1,6 @@
 # SQcompare
 
-This repository contains a Python-based workflow to analyze and compare multiple SQANTI3 outputs. The pipeline handles multiple samples, collapses incomplete splice match (ISM) isoforms (optional), assigns universal isoform IDs across samples, normalizes expression, and generates summary plots and reports.
+This repository contains a Python-based workflow to analyze and compare unique junction chains (UJC) from multiple SQANTI3 outputs. The pipeline handles multiple samples, collapses incomplete splice match (ISM) isoforms (optional), assigns universal isoform IDs across samples, normalizes expression, and generates summary plots and reports.
 
 ---
 
@@ -11,15 +11,25 @@ This repository contains a Python-based workflow to analyze and compare multiple
 - Assign **universal isoform IDs** across samples based on junction chains.
 - Normalize expression values using TMM (edgeR-like) normalization if expression files are provided.
 - Generate combined isoform matrices and summary files.
-- Produce publication-ready plots and tables:
-  - Isoform counts per category
+- Produce plots and tables:
+  - UJCs counts per category
   - Length distributions
-  - Heatmaps of expression
-  - UpSet plots for isoform sharing
+  - Heatmap of the top 1000 variable UJCs expression
+  - UpSet plots for UJCs sharing
   - Monoexon vs multiexon counts
-- Export a final **PDF report** containing plots, tables, and summary statistics.
 
 ---
+
+
+
+
+
+
+
+
+
+
+
 
 ## Installation
 
