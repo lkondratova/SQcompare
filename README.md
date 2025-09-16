@@ -20,17 +20,6 @@ This repository contains a Python-based workflow to analyze and compare unique j
 
 ---
 
-
-
-
-
-
-
-
-
-
-
-
 ## Installation
 
 This pipeline is designed to run in a **Conda environment**. Use the provided `sq_compare_environment.yml`:
@@ -39,9 +28,6 @@ This pipeline is designed to run in a **Conda environment**. Use the provided `s
 conda env create -f sq_compare_environment.yml
 conda activate sq_compare
 ```
-
-Nextflow to automate the pipeline
-`nextflow run main.nf -profile standard`
 
 ---
 ## Input Files
@@ -60,41 +46,25 @@ An example bash script for generating an input file can be found in `helper_scri
 
 ---
 
-## Workflow Overview (Nextflow)
+## Workflow Overview
 
-1. Parse inputs: `parse_sq_inputs.py` (Parse SQANTI3 files and organize them into dataframes)
-2. Collapse ISM isoforms (optional): `collapse_ism.py` (Collapse incomplete splice match isoforms if requested)
-3. Assign universal IDs: `universal_id.py` (Assign universal isoform IDs across all samples based on junction chains)
-4. Normalize expression (optional): `tmm_norm.py` (Normalize expression values using TMM edgeR-like normalization)
-5. Generate matrices and combined isoform info: `generalize_isoforms.py` (Create combined isoform matrices and information files for all samples)
-6. Create plots and summary tables: `sq_compare_summary.py` (Generate plots and tables summarizing isoform data)
-7. Export report: `export_script.py` (Export plots, tables, and summary statistics, optionally as a single PDF report)
+1. Parse inputs (`parse_sq_inputs.py`). Parse SQANTI3 files and organize them into dataframes.
+2. Collapse ISM isoforms, optional (`collapse_ism.py`). Collapse incomplete splice match isoforms if requested. Collapses all FSMs and ISMs of the same transcripts to one of the closest to the reference match; the expression values, if provided, are collapsed accordingly. 
+3. Assign universal IDs (`universal_id.py`). Assign universal isoform IDs across all samples based on junction chains, e.g., isoform1, isoform2.
+4. Normalize expression if expression values are provided (`tmm_norm.py`). Normalize expression values using TMM edgeR-like normalization.
+5. Generate matrices and combined isoform info (`generalize_isoforms.py`). Create combined isoform matrices and information files for all samples.
+   - isoform_info.tsv: unique_jc, universal_id, category, associated_gene, associated_transcript, exons_n, length.
+   - isoform_matrix.tsv: unique_jc, expression values per sample (or 1/0 if the expression files were not provided).
+7. Create plots and summary tables (`sq_compare_summary.py`). Generate plots and tables summarizing isoform data, see /test/example_output.
 
 ---
 
 ## Output
 
-`isoform_info.tsv`: Summary of all isoforms with universal IDs, category, length, exons, etc.
-
-`isoform_matrix.tsv`: Combined matrix with isoform presence/absence or normalized expression per sample.
-
-`plots/`: Figures for category counts, length distributions, heatmaps, UpSet plots, and exon distribution.
-
-`tables/`: TSV files with counts and summary tables.
-
-`summary_report.txt`: Text summary of isoform statistics.
-
-`full_report.pdf`: Optional combined report with all plots, tables, and statistics.
+/normalized_expression: a folder containing the normalized expression values if provided.
+/summarized: a folder with the output tables and plots.
 
 ---
-
-## Configuration
-
-Nextflow config: nextflow.config
-
-Profiles for local, cluster, or Docker execution.
-
-Uses the provided sq_compare_environment.yml for reproducibility.
 
 ## Pipeline parameters
 
@@ -103,17 +73,3 @@ Uses the provided sq_compare_environment.yml for reproducibility.
 --out: output directory
 
 --collapseISM (optional)
-
-## Dependencies
-
-Python ≥ 3.10
-
-pandas, numpy, scipy
-
-matplotlib, seaborn
-
-upsetplot
-
-reportlab
-
-Conda (recommended for reproducibility)
