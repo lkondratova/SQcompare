@@ -75,4 +75,4 @@ An example bash script for generating an input file can be found in `helper_scri
 --collapseISM (optional)
 
 Example:
-`python sq_compare.py --input_files /path/to/sq_input_files.txt --out /path/to/output/folder'
+`python sq_compare.py --input_files /path/to/sq_input_files.txt --out /path/to/output/folder`
